@@ -6,6 +6,7 @@ from app.dto.service_entry_dto import ServiceEntryData
 from app.processors.base_processor import BaseProcessor
 from sqlalchemy.exc import SQLAlchemyError
 from app.database.connection import SessionLocal
+from app.repositories.revenue_repository import RevenueRepository
 
 
 class RevenueProcessor(BaseProcessor):
@@ -13,6 +14,7 @@ class RevenueProcessor(BaseProcessor):
         self.df = pd.DataFrame(columns=[
             "date", "amount"
         ])
+        self.repository = RevenueRepository()
 
     def process(self, entry: ServiceEntryData):
         # Add new record to DataFrame
@@ -36,34 +38,5 @@ class RevenueProcessor(BaseProcessor):
         print("\n[RevenueProcessor] Revenue Summary:")
         print(revenue_summary)
 
-        # Save to MySQL
-        db = SessionLocal()
-        try:
-            for _, row in revenue_summary.iterrows():
-                existing = (
-                    db.query(MonthlyRevenue)
-                    .filter_by(year=int(row["year"]), month=int(row["month"]))
-                    .first()
-                )
+        self.repository.save_monthly_revenue(revenue_summary)
 
-                if existing:
-                    existing.revenue = float(row["amount"])
-                else:
-                    new_entry = MonthlyRevenue(
-                        year=int(row["year"]),
-                        month=int(row["month"]),
-                        revenue=float(row["amount"])
-                    )
-                    db.add(new_entry)
-
-            db.commit()
-        except SQLAlchemyError as e:
-            db.rollback()
-            print("[DB Error]", e)
-            raise
-        finally:
-            db.close()
-
-        return {
-            "revenue_summary": revenue_summary.to_dict(orient="records")
-        }
