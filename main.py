@@ -4,6 +4,7 @@ from app.processors.revenue_processor import RevenueProcessor
 from app.coordinator.service_entry_coordinator import ServiceEntryCoordinator
 from app.dto.service_entry_dto import ServiceEntryData
 from app.database.connection import Base,engine
+from app.processors.VehicleCategoryDistributionProcessor import VehicleCategoryDistributionProcessor
 
 
 # Create DB tables
@@ -14,9 +15,13 @@ app = FastAPI(title="Item API", version="1.0.0")
 
 
 revenue_processor = RevenueProcessor()
+VehicleCategoryDistributionProcessor = VehicleCategoryDistributionProcessor()
+
 
 coordinator = ServiceEntryCoordinator([
-    revenue_processor
+    revenue_processor,
+VehicleCategoryDistributionProcessor
+
 ])
 
 @app.post("/service-entry")
