@@ -15,12 +15,12 @@ app = FastAPI(title="Item API", version="1.0.0")
 
 
 revenue_processor = RevenueProcessor()
-VehicleCategoryDistributionProcessor = VehicleCategoryDistributionProcessor()
+vehicle_category_processor = VehicleCategoryDistributionProcessor()
 
 
 coordinator = ServiceEntryCoordinator([
     revenue_processor,
-VehicleCategoryDistributionProcessor
+vehicle_category_processor
 
 ])
 
