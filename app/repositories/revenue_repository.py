@@ -1,4 +1,5 @@
 # app/repositories/revenue_repository.py
+
 from app.database.MonthlyRevenue import MonthlyRevenue
 from app.database.connection import SessionLocal
 
@@ -19,5 +20,8 @@ class RevenueRepository:
                         revenue=float(row["amount"])
                     ))
             db.commit()
+        except Exception as e:
+            db.rollback()
+            print(f"[RevenueRepository] Error saving monthly revenue: {e}")
         finally:
             db.close()

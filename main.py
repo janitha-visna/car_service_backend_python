@@ -21,5 +21,11 @@ coordinator = ServiceEntryCoordinator([
 
 @app.post("/service-entry")
 def create_service_entry(entry: ServiceEntryData):
-    result = coordinator.execute(entry)
-    return result
+    try:
+        result = coordinator.execute(entry)
+        return result
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
