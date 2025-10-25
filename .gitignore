@@ -18,6 +18,7 @@ Thumbs.db
 
 # Logs and temp files
 *.log
+*.logs
 *.tmp
 
 # Byte-compiled / optimized / DLL files
