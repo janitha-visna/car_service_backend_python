@@ -1,12 +1,12 @@
 
 import pandas as pd
 
-from app.database.MonthlyRevenue import MonthlyRevenue
 from app.dto.service_entry_dto import ServiceEntryData
 from app.processors.base_processor import BaseProcessor
-from sqlalchemy.exc import SQLAlchemyError
-from app.database.connection import SessionLocal
 from app.repositories.revenue_repository import RevenueRepository
+from app.config.logger import logger
+
+
 
 
 class RevenueProcessor(BaseProcessor):
@@ -23,6 +23,8 @@ class RevenueProcessor(BaseProcessor):
             "amount": entry.amount
         }])
         self.df = pd.concat([self.df, new_row], ignore_index=True)
+        logger.info(f"DataFrame after concat:\n{self.df.to_string()}")
+
 
         # Extract year and month for grouping
         self.df["year"] = pd.to_datetime(self.df["date"]).dt.year
@@ -37,6 +39,7 @@ class RevenueProcessor(BaseProcessor):
 
         print("\n[RevenueProcessor] Revenue Summary:")
         print(revenue_summary)
+        logger.info("Revenue summary:\n%s", revenue_summary.to_string(index=False))
 
         self.repository.save_monthly_revenue(revenue_summary)
 

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.database.connection import SessionLocal
-from app.database.VehicleCategoryDistributionModel import VehicleCategoryDistribution
+from app.models.VehicleCategoryDistributionModelModel import VehicleCategoryDistribution
 from app.config.logger import logger  # ✅ Import the shared logger
 
 

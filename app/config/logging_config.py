@@ -14,34 +14,29 @@ LOG_FORMAT = (
     "%(asctime)s | %(levelname)-8s | %(name)s | %(filename)s:%(lineno)d | %(message)s"
 )
 
-def setup_logger(name: str = "app", level: int = logging.INFO) -> logging.Logger:
-    """
-    Sets up and returns a configured logger instance.
-    """
+def setup_logger(name: str, log_file: Path = None, level: int = logging.INFO) -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
-    # Prevent duplicate handlers
-    if logger.handlers:
-        return logger
+    # Only add handlers if none exist
+    if not logger.handlers:
+        # Console handler
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
 
-    # === Handlers ===
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG)
+        # File handler
+        if log_file is None:
+            log_file = LOG_DIR / f"{name}.log"
+        fh = logging.handlers.RotatingFileHandler(
+            log_file, maxBytes=5_000_000, backupCount=5, encoding="utf-8"
+        )
+        fh.setLevel(logging.INFO)
 
-    file_handler = logging.handlers.RotatingFileHandler(
-        LOG_FILE, maxBytes=5_000_000, backupCount=5, encoding="utf-8"
-    )
-    file_handler.setLevel(logging.INFO)
+        formatter = logging.Formatter(LOG_FORMAT)
+        ch.setFormatter(formatter)
+        fh.setFormatter(formatter)
 
-    # === Formatter ===
-    formatter = logging.Formatter(LOG_FORMAT)
-
-    console_handler.setFormatter(formatter)
-    file_handler.setFormatter(formatter)
-
-    # === Attach handlers ===
-    logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
+        logger.addHandler(ch)
+        logger.addHandler(fh)
 
     return logger

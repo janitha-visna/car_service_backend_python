@@ -7,22 +7,15 @@ from app.database.connection import Base,engine
 from app.processors.VehicleCategoryDistributionProcessor import VehicleCategoryDistributionProcessor
 from app.config.logger import logger
 
+
 # Create DB tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Item API", version="1.0.0")
 
+# Include routers
+app.include_router(item_router, prefix="/items", tags=["Items"])
 
-
-revenue_processor = RevenueProcessor()
-vehicle_category_processor = VehicleCategoryDistributionProcessor()
-
-
-coordinator = ServiceEntryCoordinator([
-    revenue_processor,
-vehicle_category_processor
-
-])
 
 @app.on_event("startup")
 def on_startup():
@@ -32,9 +25,6 @@ def on_startup():
 def on_shutdown():
     logger.info("🛑 FastAPI application is shutting down")
 
-@app.post("/service-entry")
-def create_service_entry(entry: ServiceEntryData):
-    logger.info(f"Received new service entry: {entry.number_plate}")
-    result = coordinator.execute(entry)
-    logger.info("Service entry processed successfully")
-    return result
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="127.0.0.1", port=9000)

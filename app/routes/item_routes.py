@@ -1,27 +1,26 @@
 from fastapi import APIRouter
-from typing import List
-from app.models.item_model import Item
-from app.services.item_service import ItemService
+from app.processors.revenue_processor import RevenueProcessor
+from app.coordinator.service_entry_coordinator import ServiceEntryCoordinator
+from app.processors.VehicleCategoryDistributionProcessor import VehicleCategoryDistributionProcessor
+from app.dto.service_entry_dto import ServiceEntryData
+from app.config.logger import logger
 
 router = APIRouter()
-service = ItemService()
 
-@router.get("/", response_model=List[Item])
-def get_items():
-    return service.get_items()
 
-@router.get("/{item_id}", response_model=Item)
-def get_item(item_id: int):
-    return service.get_item(item_id)
+# Initialize processors and coordinator
+revenue_processor = RevenueProcessor()
+vehicle_category_processor = VehicleCategoryDistributionProcessor()
 
-@router.post("/", response_model=Item)
-def create_item(item: Item):
-    return service.create_item(item)
+coordinator = ServiceEntryCoordinator([
+    revenue_processor,
+    vehicle_category_processor
+])
 
-@router.put("/{item_id}", response_model=Item)
-def update_item(item_id: int, updated_item: Item):
-    return service.update_item(item_id, updated_item)
 
-@router.delete("/{item_id}")
-def delete_item(item_id: int):
-    return service.delete_item(item_id)
+@router.post("/service-entry")
+def create_service_entry(entry: ServiceEntryData):
+    logger.info(f"Received new service entry: {entry.number_plate}")
+    result = coordinator.execute(entry)
+    logger.info("Service entry processed successfully")
+    return result
