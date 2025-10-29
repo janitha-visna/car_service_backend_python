@@ -42,4 +42,6 @@ class RevenueProcessor(BaseProcessor):
         logger.info("Revenue summary:\n%s", revenue_summary.to_string(index=False))
 
         self.repository.save_monthly_revenue(revenue_summary)
+        return revenue_summary.to_dict(orient="records")
+
 
