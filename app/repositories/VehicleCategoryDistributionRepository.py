@@ -2,9 +2,10 @@ from sqlalchemy.orm import Session
 from app.database.connection import SessionLocal
 from app.models.VehicleCategoryDistributionModelModel import VehicleCategoryDistribution
 from app.config.logger import logger  # ✅ Import the shared logger
+from app.repositories.base_repository import BaseRepository
 
 
-class VehicleCategoryRepository:
+class VehicleCategoryRepository(BaseRepository):
     def __init__(self):
         pass
 
@@ -16,12 +17,12 @@ class VehicleCategoryRepository:
         :param count: Number to increment (default=1)
         :return: dict containing the updated category and count
         """
-        db: Session = SessionLocal()
+
         logger.info(f"🔄 Updating vehicle category distribution for '{category}' (+{count})")
 
         try:
             # Check if the category already exists
-            existing = db.query(VehicleCategoryDistribution).filter_by(category=category).first()
+            existing = self.db.query(VehicleCategoryDistribution).filter_by(category=category).first()
             if existing:
                 existing.service_count += count
                 logger.debug(f"Updated '{category}' count to {existing.service_count}")
@@ -30,12 +31,12 @@ class VehicleCategoryRepository:
                     category=category,
                     service_count=count
                 )
-                db.add(new_entry)
+                self.db.add(new_entry)
                 logger.debug(f"Inserted new category '{category}' with count {count}")
 
-            db.commit()
 
-            updated = db.query(VehicleCategoryDistribution).filter_by(category=category).first()
+
+            updated = self.db.query(VehicleCategoryDistribution).filter_by(category=category).first()
             logger.info(f"✅ Vehicle category '{category}' updated successfully")
 
             return {
@@ -44,10 +45,10 @@ class VehicleCategoryRepository:
             }
 
         except Exception as e:
-            db.rollback()
+
             logger.exception(f"❌ Error updating vehicle category '{category}': {e}")
             raise e
 
         finally:
-            db.close()
+
             logger.debug("Database session closed for VehicleCategoryRepository.")
