@@ -37,10 +37,9 @@ class ProcessorC:
         return True
 
 
-# Monkey-patch coordinator to use our dummy processors
 def test_transaction_rollback():
-    coordinator = ServiceEntryCoordinator()
-    coordinator.processors = [ProcessorA, ProcessorB, ProcessorC]
+    # ✅ pass processors correctly
+    coordinator = ServiceEntryCoordinator(processors=[ProcessorA, ProcessorB, ProcessorC])
 
     entry = ServiceEntryData(
         number_plate="TEST123",
@@ -53,13 +52,14 @@ def test_transaction_rollback():
         telephone_number="0771234567"
     )
 
-    # Run coordinator (expect exception)
-    try:
-        coordinator.run(entry)
-    except Exception:
-        pass
 
-    # Check database state
+    # ✅ Use correct method name: execute()
+    result = coordinator.execute(entry)
+
+    # Expect failure due to ProcessorB exception
+    assert result["status"] == "failed", "Coordinator did not report failure as expected"
+
+    # ✅ Verify rollback worked (no records in DummyModel)
     db = SessionLocal()
     records = db.query(DummyModel).all()
     db.close()
