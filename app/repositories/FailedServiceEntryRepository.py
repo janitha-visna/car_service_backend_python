@@ -1,6 +1,6 @@
 # app/repositories/FailedServiceEntryRepository.py
 from app.repositories.base_repository import BaseRepository
-from app.database.FailedServiceEntryModel import FailedServiceEntry
+from app.models.FailedServiceEntryModel import FailedServiceEntry
 
 class FailedServiceEntryRepository(BaseRepository):
     def log_failure(self, entry, error_message: str):

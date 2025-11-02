@@ -9,15 +9,10 @@ from app.config.logger import logger
 router = APIRouter()
 
 
-# Initialize processors and coordinator
-revenue_processor = RevenueProcessor()
-vehicle_category_processor = VehicleCategoryDistributionProcessor()
-average_spend_processor = AverageSpendByVehicleProcessor()
-
 coordinator = ServiceEntryCoordinator([
-    revenue_processor,
-    vehicle_category_processor,
-    average_spend_processor
+    RevenueProcessor,
+    VehicleCategoryDistributionProcessor,
+    AverageSpendByVehicleProcessor
 ])
 
 
